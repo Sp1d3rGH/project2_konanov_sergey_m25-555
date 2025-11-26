@@ -1,0 +1,41 @@
+[project]
+name = "project2-konanov-sergey-m25-555"
+version = "0.1.0"
+description = "MEPhI student project #2."
+authors = [
+    {name = "Sergey Konanov",email = "seregakonanov@mail.ru"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "prompt (>=0.4.1,<0.5.0)"
+]
+
+
+[tool.poetry]
+packages = [
+    {include = "src"},
+]
+
+
+[tool.poetry.scripts]
+project = "src.primitive_db.main:main" 
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.14.6"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+exclude = ["venv", ".venv", "dist", "__pycache__"]
+
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = []
