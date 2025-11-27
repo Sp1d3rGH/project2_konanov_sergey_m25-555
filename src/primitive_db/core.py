@@ -14,13 +14,13 @@ def create_table(metadata, table_name, columns=None):
                 # column = "name:type"
                 if ':' in column:
                     col_name, col_type = column.split(sep=':')[0], column.split(sep=':')[1]
-                    if col_name == '':
+                    if not col_name:
                         col_name = "col" + str(count_columns)
                     if col_type not in ["int", "str", "bool"]:
                         print(f"Некорректное значение: {col_type}. Попробуйте снова.")
                         return metadata
                     else:
-                        table_data[column] = []
+                        table_data[col_name + ':' + col_type] = []
                 else:
                     print(f"Некорректная инициализация столбца: {column}.")
                     return metadata
