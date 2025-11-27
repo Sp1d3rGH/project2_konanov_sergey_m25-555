@@ -12,3 +12,7 @@
 > exit - выход из программы.
 > help - справочная информация.
 ```
+
+## Asciinema
+
+https://asciinema.org/a/LxMfvwnGykJJUOc6RuMsLOear
