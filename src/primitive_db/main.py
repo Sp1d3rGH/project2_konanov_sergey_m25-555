@@ -5,6 +5,6 @@ import src.primitive_db.engine as engine
 
 
 def main():
-    print("DB is running!")
     engine.welcome()
+    engine.run()
     return 0
