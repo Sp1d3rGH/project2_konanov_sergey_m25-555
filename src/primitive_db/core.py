@@ -1,4 +1,5 @@
 import src.primitive_db.utils as utils
+import os
 from prettytable import PrettyTable
 
 
@@ -38,6 +39,8 @@ def create_table(metadata, table_name, columns=None):
                     return metadata
         print(f"Таблица '{table_name}' успешно создана со столбцами: {[col_name for col_name in list(table_data.keys())]}")
         metadata[table_name] = table_data
+        with open(TABLE_DATA_DIR + "/" + table_name + ".json", "w") as file:
+            file.write(str(dict()))
         return metadata
     else:
         print(f"Ошибка: Таблица '{table_name}' уже существует.")
@@ -55,6 +58,7 @@ def drop_table(metadata, table_name):
     else:
         print(f"Таблица {table_name} успешно удалена.")
         metadata.pop(table_name)
+        os.remove(TABLE_DATA_DIR + "/" + table_name + ".json")
         return metadata
 
 def insert(metadata, table_name, values):
