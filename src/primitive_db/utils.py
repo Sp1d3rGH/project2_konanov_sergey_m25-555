@@ -34,3 +34,20 @@ def save_metadata(filepath, data):
             # Записывает словарь в новый json
             #print(f"Запись в новый файл: {filepath}.")
             json.dump(data, f)
+
+def load_table_data(table_path):
+    try:
+        with open(table_path) as f:
+            data = json.load(f)
+            return data
+    except FileNotFoundError:
+        print(f"Не найден файл {table_path}.")
+        return {}
+
+def save_table_data(table_path, data):
+    try:
+        with open(table_path, 'w') as f:
+            json.dump(data, f)
+    except FileNotFoundError:
+        with open(table_path, 'w') as f:
+            json.dump(data, f)
