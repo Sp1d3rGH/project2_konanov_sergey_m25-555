@@ -1,5 +1,5 @@
-import src.primitive_db.utils as utils
 import os
+import src.primitive_db.utils as utils
 import src.decorators as decorators
 from prettytable import PrettyTable
 
@@ -11,7 +11,7 @@ def create_table(metadata, table_name, columns=None):
     # metadata - словарь
     # metadata = {
     #   'table1': {'ID:int': [], 'column1:str': []},
-    #   'table2': {'ID:int': [], 'column1:str': []} 
+    #   'table2': {'ID:int': [], 'column1:str': []}
     #   }
     if table_name not in list(metadata.keys()):
         table_data = {}

@@ -1,6 +1,6 @@
 import time
-import prompt
 import shlex
+import prompt
 
 
 def handle_db_errors(func):
@@ -8,7 +8,8 @@ def handle_db_errors(func):
         try:
             return func(*args, **kwargs)
         except FileNotFoundError:
-            print("Ошибка: Файл данных не найден. База данных или файл таблицы не инициализированы.")
+            print("Ошибка: Файл данных не найден. "
+                "База данных или файл таблицы не инициализированы.")
         except KeyError as e:
             print(f"Ошибка: Таблица или столбец {e} не найден.")
         except ValueError as e:
@@ -21,9 +22,11 @@ def confirm_action(action_name=""):
     def real_decorator(func):
         def wrapper(*args, **kwargs):
             if action_name in ["удаление таблицы", "удаление записи"]:
-                print(f"Вы уверены, что хотите выполнить '{action_name}'? [y/n]:", end='')
+                print(f"Вы уверены, что хотите выполнить '{action_name}'? [y/n]:",
+                      end='')
             else:
-                print("Вы уверены, что хотите выполнить это действие? [y/n]:", end='')
+                print("Вы уверены, что хотите выполнить это действие? [y/n]:",
+                      end='')
             user_input = prompt.string()
             user_input = shlex.split(user_input)
             if not user_input:
@@ -40,6 +43,7 @@ def log_time(func):
         start_time = time.monotonic()
         result = func(*args, **kwargs)
         end_time = time.monotonic()
-        print(f"Функция {func.__name__} выполнилась за {round(end_time - start_time, 3)} секунд")
+        result_time = round(end_time - start_time, 3)
+        print(f"Функция {func.__name__} выполнилась за {result_time} секунд")
         return result
     return wrapper

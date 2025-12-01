@@ -1,4 +1,5 @@
 import os
+import time
 import prompt
 import shlex
 import src.primitive_db.utils as utils
@@ -30,10 +31,12 @@ def welcome():
 def create_cacher(func):
     func_cache = {}
     def cache_result(key, *args, **kwargs):
+        start_seek = time.monotonic()
         if key in func_cache:
-            print("Найдены данные в кэше.")
+            stop_seek = time.monotonic()
+            result_seek = round(stop_seek - start_seek, 3)
+            print(f"Функция выполнилась за {result_seek} секунд")
         else:
-            print("Не найдены данные в кэше.")
             func_cache[key] = func(*args, **kwargs)
         return func_cache[key]
     return cache_result
