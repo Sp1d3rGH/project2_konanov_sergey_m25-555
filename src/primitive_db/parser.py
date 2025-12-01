@@ -3,7 +3,7 @@ def parse(expression, preferred_type="str"):
     На вход:
     строка "col_name = col_value"
     или "col_name=col_value"
-    На выход: 
+    На выход:
     {"col_name": col_value}, parse_success
     '''
     col_name = expression.split('=')[0]
@@ -24,13 +24,15 @@ def parse(expression, preferred_type="str"):
                 parse_success = False
         case "str":
             pass
-
     return {col_name: col_value}, parse_success
 
 def parse_values(values, columns):
     '''
-    In:  ['123', ...], ['col1:int', ...]
-    Out: [123, ...]
+    На вход:
+    ['123', ...], ['col1:int', ...]
+    На выход:
+    [123, ...]
+    В случае неудачи приводит значение к типу <str>.
     '''
     parsed_values = []
     for i in range(len(values)):

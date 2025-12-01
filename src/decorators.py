@@ -1,9 +1,14 @@
-import time
 import shlex
+import time
+
 import prompt
 
 
 def handle_db_errors(func):
+    '''
+    Обрабатывает ошибки, которые
+    не были предусмотрены в логике функций.
+    '''
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -14,11 +19,18 @@ def handle_db_errors(func):
             print(f"Ошибка: Таблица или столбец {e} не найден.")
         except ValueError as e:
             print(f"Ошибка валидации: {e}")
+        except TypeError:
+            print("Ошибка: Словарь или список был "
+                  "изменен некорректно.")
         except Exception as e:
             print(f"Произошла непредвиденная ошибка: {e}")
     return wrapper
 
 def confirm_action(action_name=""):
+    '''
+    Для подтверждения операции
+    пользователь должен ввести 'y'/'yes'/'да'.
+    '''
     def real_decorator(func):
         def wrapper(*args, **kwargs):
             if action_name in ["удаление таблицы", "удаление записи"]:
@@ -39,6 +51,10 @@ def confirm_action(action_name=""):
     return real_decorator
 
 def log_time(func):
+    '''
+    Считает время выполнения функции
+    в секундах с округлением до тысячных
+    '''
     def wrapper(*args, **kwargs):
         start_time = time.monotonic()
         result = func(*args, **kwargs)

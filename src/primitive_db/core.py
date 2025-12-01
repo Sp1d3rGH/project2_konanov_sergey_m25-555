@@ -1,18 +1,21 @@
 import os
-import src.primitive_db.utils as utils
-import src.decorators as decorators
+
 from prettytable import PrettyTable
 
+import src.decorators as decorators
+import src.primitive_db.utils as utils
 
 TABLE_DATA_DIR = "data"
 
 @decorators.handle_db_errors
 def create_table(metadata, table_name, columns=None):
-    # metadata - словарь
-    # metadata = {
-    #   'table1': {'ID:int': [], 'column1:str': []},
-    #   'table2': {'ID:int': [], 'column1:str': []}
-    #   }
+    '''
+    metadata - словарь
+    metadata = {
+       'table1': {'ID:int': [], 'column1:type': []},
+       'table2': {'ID:int': [], 'column1:type': []}
+    }
+    '''
     if table_name not in list(metadata.keys()):
         table_data = {}
         table_data["ID:int"] = []
@@ -20,16 +23,17 @@ def create_table(metadata, table_name, columns=None):
             count_columns = 0 # Для безымянных колонн
             for column in columns:
                 count_columns += 1
-                # column = "name:type"
                 if columns.count(column) > 1: # Дубликаты столбцов
-                    print(f"Ошибка: Идентичные столбцы {column}. Попробуйте снова.")
+                    print(f"Идентичные столбцы {column}. Попробуйте снова.")
                     return metadata
                 if ':' in column:
-                    col_name, col_type = column.split(sep=':')[0], column.split(sep=':')[1]
+                    col_name = column.split(sep=':')[0]
+                    col_type = column.split(sep=':')[1]
                     if not col_name:
                         col_name = "col" + str(count_columns)
                     if '=' in col_name:
-                        print(f"Недопустимый символ '=' в имени столбца: {col_name}. Попробуйте снова.")
+                        print(f"Недопустимый символ '=' в имени "
+                              f"столбца: {col_name}. Попробуйте снова.")
                         return metadata
                     if col_type not in ["int", "str", "bool"]:
                         print(f"Некорректное значение: {col_type}. Попробуйте снова.")
@@ -39,7 +43,8 @@ def create_table(metadata, table_name, columns=None):
                 else:
                     print(f"Некорректная инициализация столбца: {column}.")
                     return metadata
-        print(f"Таблица '{table_name}' успешно создана со столбцами: {[col_name for col_name in list(table_data.keys())]}")
+        print(f"Таблица '{table_name}' успешно создана со "
+              f"столбцами: {[col_name for col_name in list(table_data.keys())]}")
         metadata[table_name] = table_data
         os.makedirs(TABLE_DATA_DIR, exist_ok=True)
         with open(TABLE_DATA_DIR + "/" + table_name + ".json", "w") as file:
@@ -70,16 +75,19 @@ def drop_table(metadata, table_name):
 @decorators.handle_db_errors
 @decorators.log_time
 def insert(metadata, table_name, values):
-    # <table_name>.json:
-    # {
-    #   '1': {'column1': <str>, 'column2': <int>},
-    #   '2': {'column1': <str>, 'column2': <int>} 
-    # }
+    '''
+    <table_name>.json:
+    {
+        '1': {'column1': <type>, 'column2': <type>},
+        '2': {'column1': <type>, 'column2': <type>}
+    }
+    '''
+    table_path = TABLE_DATA_DIR + "/" + table_name + ".json"
     if table_name not in list(metadata.keys()):
         print(f"Ошибка: Таблица '{table_name}' не существует.")
         return {}
     else:
-        table_data = utils.load_table_data(TABLE_DATA_DIR + "/" + table_name + ".json")
+        table_data = utils.load_table_data(table_path)
         if len(list(metadata[table_name].keys())) - 1 == len(values):
             table_entry = {}
             id_entry = str(len(table_data) + 1)
@@ -91,19 +99,25 @@ def insert(metadata, table_name, values):
                 match col_type:
                     case "int":
                         if not isinstance(values[i], int):
-                            print(f"Ошибка: тип переменной {values[i]} не соответствует типу столбца {col_name + ":" + col_type}.")
+                            print(f"Ошибка: тип переменной {values[i]} не "
+                                  f"соответствует типу "
+                                  f"столбца {col_name + ":" + col_type}.")
                             return table_data
                     case "str":
                         if not isinstance(values[i], str):
-                            print(f"Ошибка: тип переменной {values[i]} не соответствует типу столбца {col_name + ":" + col_type}.")
+                            print(f"Ошибка: тип переменной {values[i]} не "
+                                  f"соответствует типу "
+                                  f"столбца {col_name + ":" + col_type}.")
                             return table_data
                     case "bool":
                         if not isinstance(values[i], bool):
-                            print(f"Ошибка: тип переменной {values[i]} не соответствует типу столбца {col_name + ":" + col_type}.")
+                            print(f"Ошибка: тип переменной {values[i]} не "
+                                  f"соответствует типу "
+                                  f"столбца {col_name + ":" + col_type}.")
                             return table_data
                 table_entry[col_name] = values[i]
             table_data[id_entry] = table_entry
-            utils.save_table_data(TABLE_DATA_DIR + "/" + table_name + ".json", table_data)
+            utils.save_table_data(table_path, table_data)
             print(f"Запись с ID={id_entry} успешно добавлена в таблицу {table_name}.")
             return table_data
         else:
@@ -179,13 +193,15 @@ def delete(table_data, where_clause):
 @decorators.handle_db_errors
 def print_table(metadata, table_name, selected_data=None):
     output_table = PrettyTable()
+    table_path = TABLE_DATA_DIR + "/" + table_name + ".json"
     if table_name not in list(metadata.keys()):
         print(f"Ошибка: Таблица '{table_name}' не существует.")
     else:
-        columns = [col.split(sep=':')[0] for col in list(metadata[table_name].keys())] 
+        columns = [col.split(sep=':')[0]
+                   for col in list(metadata[table_name].keys())]
         output_table.field_names = columns
         if not selected_data:
-            selected_data = utils.load_table_data(TABLE_DATA_DIR + "/" + table_name + ".json")
+            selected_data = utils.load_table_data(table_path)
         for id in list(selected_data.keys()):
             row = [id]
             for column in columns:
