@@ -27,39 +27,29 @@ def welcome():
         "<command> help - справочная информация"
     )
 
-
-
-def create_cacher():
-    select_cache = {}
-    # select_cache = {
-    # "{age: 28}": <table_data for age=28>
-    # }
-    def cache_result(key, value_func):
-        if key in list(select_cache.keys()):
-            return select_cache[key]
+def create_cacher(func):
+    func_cache = {}
+    def cache_result(key, *args, **kwargs):
+        if key in func_cache:
+            print("Найдены данные в кэше.")
         else:
-            result = value_func
-            select_cache[key] = result
-            return result
+            print("Не найдены данные в кэше.")
+            func_cache[key] = func(*args, **kwargs)
+        return func_cache[key]
     return cache_result
-# cached_data = create_cacher() # При переинициализации кэш обновится
-# table_data = cached_data(clause, core.select(table_data, clause))
-
 
 def run():
     if not os.path.exists(METADATA_PATH):
         os.makedirs(METADATA_DIR, exist_ok=True)
         with open(METADATA_PATH, "w") as file:
-            print(f"Файл с базой данных не найден. Создан файл: {METADATA_PATH}.")
+            #print(f"Файл с базой данных не найден. Создан файл: {METADATA_PATH}.")
             file.write(str(dict()))
-
+    select_cached = create_cacher(core.select)
     while True:
         metadata = utils.load_metadata(METADATA_PATH)
         user_input = prompt.string("\n>>>Введите команду: ")
         user_args = shlex.split(user_input)
-        print(user_args)
         if not user_args:
-            # Если пользователь ничего не ввел
             continue
         match user_args[0]:
             case "create_table":
@@ -116,7 +106,8 @@ def run():
                             preferred_type = list(metadata[table_name].keys())[col_index].split(sep=':')[1]
                             clause, success = parser.parse(user_args[4] + '=' + user_args[6], preferred_type)
                             if success:
-                                select_data = core.select(table_data, clause)
+                                #select_data = core.select(table_data, clause)
+                                select_data = select_cached(str(user_args), table_data, clause)
                                 core.print_table(metadata, table_name, select_data)
                             else:
                                 print(f"Значение {user_args[6]} нельзя использовать для столбца типа {preferred_type}.")
@@ -130,7 +121,8 @@ def run():
                     else:
                         print(f"Ошибка: Таблица '{table_name}' не существует.")
                         continue
-                    select_data = core.select(table_data)
+                    #select_data = core.select(table_data)
+                    select_data = select_cached(str(user_args), table_data)
                     core.print_table(metadata, table_name)
                 else:
                     print("Некорректный синтаксис. Попробуйте снова.")

@@ -20,8 +20,8 @@ def handle_db_errors(func):
 def confirm_action(action_name=""):
     def real_decorator(func):
         def wrapper(*args, **kwargs):
-            if action_name == "удаление таблицы":
-                print(f"Вы уверены, что хотите выполнить {action_name}? [y/n]:", end='')
+            if action_name in ["удаление таблицы", "удаление записи"]:
+                print(f"Вы уверены, что хотите выполнить '{action_name}'? [y/n]:", end='')
             else:
                 print("Вы уверены, что хотите выполнить это действие? [y/n]:", end='')
             user_input = prompt.string()

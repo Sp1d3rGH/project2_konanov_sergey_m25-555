@@ -56,6 +56,7 @@ def list_tables(metadata):
     return metadata
 
 @decorators.handle_db_errors
+@decorators.confirm_action("удаление таблицы")
 def drop_table(metadata, table_name):
     if table_name not in list(metadata.keys()):
         print(f"Ошибка: Таблица '{table_name}' не существует.")
@@ -67,6 +68,7 @@ def drop_table(metadata, table_name):
         return metadata
 
 @decorators.handle_db_errors
+@decorators.log_time
 def insert(metadata, table_name, values):
     # <table_name>.json:
     # {
@@ -109,6 +111,7 @@ def insert(metadata, table_name, values):
             return table_data
 
 @decorators.handle_db_errors
+@decorators.log_time
 def select(table_data, where_clause=None):
     if where_clause:
         select_data = {}
@@ -153,6 +156,7 @@ def update(table_data, set_clause, where_clause):
         return table_data
 
 @decorators.handle_db_errors
+@decorators.confirm_action("удаление записи")
 def delete(table_data, where_clause):
     col_name = list(where_clause.keys())[0]
     col_value = where_clause[col_name]
