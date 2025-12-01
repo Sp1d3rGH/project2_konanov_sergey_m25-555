@@ -26,3 +26,28 @@ def parse(expression, preferred_type="str"):
             pass
 
     return {col_name: col_value}, parse_success
+
+def parse_values(values, columns):
+    '''
+    In:  ['123', ...], ['col1:int', ...]
+    Out: [123, ...]
+    '''
+    parsed_values = []
+    for i in range(len(values)):
+        preferred_type = columns[i].split(sep=':')[1]
+        match preferred_type:
+            case "int":
+                try:
+                    parsed_values.append(int(values[i]))
+                except ValueError:
+                    parsed_values.append(values[i])
+            case "bool":
+                if values[i].lower() == "true":
+                    parsed_values.append(True)
+                elif values[i].lower() == "false":
+                    parsed_values.append(False)
+                else:
+                    parsed_values.append(values[i])
+            case "str":
+                parsed_values.append(values[i])
+    return parsed_values

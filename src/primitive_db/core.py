@@ -6,6 +6,7 @@ from prettytable import PrettyTable
 
 TABLE_DATA_DIR = "data"
 
+@decorators.handle_db_errors
 def create_table(metadata, table_name, columns=None):
     # metadata - словарь
     # metadata = {
@@ -40,6 +41,7 @@ def create_table(metadata, table_name, columns=None):
                     return metadata
         print(f"Таблица '{table_name}' успешно создана со столбцами: {[col_name for col_name in list(table_data.keys())]}")
         metadata[table_name] = table_data
+        os.makedirs(TABLE_DATA_DIR, exist_ok=True)
         with open(TABLE_DATA_DIR + "/" + table_name + ".json", "w") as file:
             file.write(str(dict()))
         return metadata
@@ -47,11 +49,13 @@ def create_table(metadata, table_name, columns=None):
         print(f"Ошибка: Таблица '{table_name}' уже существует.")
         return metadata
 
+@decorators.handle_db_errors
 def list_tables(metadata):
     for table_name in list(metadata.keys()):
         print(f"- {table_name}")
     return metadata
 
+@decorators.handle_db_errors
 def drop_table(metadata, table_name):
     if table_name not in list(metadata.keys()):
         print(f"Ошибка: Таблица '{table_name}' не существует.")
@@ -62,6 +66,7 @@ def drop_table(metadata, table_name):
         os.remove(TABLE_DATA_DIR + "/" + table_name + ".json")
         return metadata
 
+@decorators.handle_db_errors
 def insert(metadata, table_name, values):
     # <table_name>.json:
     # {
@@ -103,6 +108,7 @@ def insert(metadata, table_name, values):
             print("Ошибка: Число переменных не соответствует числу столбцов.")
             return table_data
 
+@decorators.handle_db_errors
 def select(table_data, where_clause=None):
     if where_clause:
         select_data = {}
@@ -121,6 +127,7 @@ def select(table_data, where_clause=None):
     else:
         return table_data
 
+@decorators.handle_db_errors
 def update(table_data, set_clause, where_clause):
     set_name = list(set_clause.keys())[0]
     set_value = set_clause[set_name]
@@ -145,6 +152,7 @@ def update(table_data, set_clause, where_clause):
             table_data[key][set_name] = set_value
         return table_data
 
+@decorators.handle_db_errors
 def delete(table_data, where_clause):
     col_name = list(where_clause.keys())[0]
     col_value = where_clause[col_name]
@@ -164,18 +172,20 @@ def delete(table_data, where_clause):
             del table_data[key]
         return table_data
 
-def print_table(metadata, table_name):
+@decorators.handle_db_errors
+def print_table(metadata, table_name, selected_data=None):
     output_table = PrettyTable()
     if table_name not in list(metadata.keys()):
         print(f"Ошибка: Таблица '{table_name}' не существует.")
     else:
-        table_data = utils.load_table_data(TABLE_DATA_DIR + "/" + table_name + ".json")
         columns = [col.split(sep=':')[0] for col in list(metadata[table_name].keys())] 
         output_table.field_names = columns
-        for id in list(table_data.keys()):
+        if not selected_data:
+            selected_data = utils.load_table_data(TABLE_DATA_DIR + "/" + table_name + ".json")
+        for id in list(selected_data.keys()):
             row = [id]
             for column in columns:
                 if column != "ID":
-                    row.append(table_data[id][column])
+                    row.append(selected_data[id][column])
             output_table.add_row(row)
         print(output_table)
