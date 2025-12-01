@@ -19,6 +19,25 @@ def welcome():
         "<command> help - справочная информация"
     )
 
+
+
+def create_cacher():
+    select_cache = {}
+    # select_cache = {
+    # "{age: 28}": <table_data for age=28>
+    # }
+    def cache_result(key, value_func):
+        if key in list(select_cache.keys()):
+            return select_cache[key]
+        else:
+            result = value_func
+            select_cache[key] = result
+            return result
+    return cache_result
+# cached_data = create_cacher() # При переинициализации кэш обновится
+# table_data = cached_data(clause, core.select(table_data, clause))
+
+
 def run():
     while True:
         metadata = utils.load_metadata(METADATA_PATH)
